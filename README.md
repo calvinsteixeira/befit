@@ -36,6 +36,18 @@ exibidos pelo comando `pnpm db:start`.
 - Execute `pnpm ios:device` para compilar e instalar em um iPhone conectado ao Mac.
 - O Supabase Studio fica disponível em `http://localhost:54323`.
 
+## Usuário de teste local
+
+Para testar o login por e-mail e senha no Expo Go:
+
+1. Execute `pnpm db:start`.
+2. Abra `http://localhost:54323`.
+3. Acesse **Authentication → Users**.
+4. Crie manualmente um usuário com e-mail e senha.
+5. Use essas credenciais no Expo Go.
+
+As credenciais são locais e não devem ser adicionadas ao repositório ou a arquivos `.env`.
+
 ## Comandos
 
 | Comando | Descrição |
@@ -73,6 +85,10 @@ supabase/
 O cliente e o provider do TanStack Query ficam em `src/lib/query`. Consultas futuras ao
 Supabase devem usar TanStack Query; Zustand não deve duplicar estado remoto. Formulários
 futuros devem usar React Hook Form com schemas Zod em `src/schemas`.
+
+O fluxo de entrada autenticada fica em `src/features/auth`: a sessão persistida do Supabase
+é resolvida antes do redirecionamento entre `/(auth)/login` e `/(app)`. A autenticação desta
+base usa somente e-mail e senha.
 
 O tema visual mantém os tokens atuais em `src/theme/tokens.ts` e os expõe como variáveis
 semânticas para NativeWind/Reusables em `global.css`.
