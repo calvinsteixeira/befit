@@ -23,3 +23,10 @@ export const radius = {
   lg: 24,
   round: 999,
 } as const
+
+/** Dimensões semânticas da marca para manter o símbolo consistente entre contextos. */
+export const brand = {
+  markCompact: 96,
+  markHero: 152,
+  markAmbient: 320,
+} as const

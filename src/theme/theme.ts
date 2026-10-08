@@ -1,4 +1,4 @@
-import { colors, radius, spacing } from './tokens'
+import { brand, colors, radius, spacing } from './tokens'
 
 /**
  * Semantic tokens shared by NativeWind/Reusables and native code.
@@ -17,4 +17,5 @@ export const theme = {
   },
   radius,
   spacing,
+  brand,
 } as const
