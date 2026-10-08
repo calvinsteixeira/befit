@@ -89,7 +89,7 @@ export function ProfileScreen() {
             {isSigningOut ? (
               <View className="flex-row items-center gap-2">
                 <ActivityIndicator
-                  color={colors.onAccent}
+                  color={colors.foreground}
                   accessibilityLabel={t('profile.status.signingOut')}
                 />
                 <Text>{t('profile.status.signingOut')}</Text>
