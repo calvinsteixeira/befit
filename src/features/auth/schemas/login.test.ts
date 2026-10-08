@@ -1,4 +1,17 @@
-import { loginSchema } from './login'
+import i18n, { i18nReady } from '@/i18n'
+
+import { createLoginSchema } from './login'
+
+jest.mock('expo-localization', () => ({
+  getLocales: () => [{ languageTag: 'pt-BR' }],
+}))
+
+let loginSchema: ReturnType<typeof createLoginSchema>
+
+beforeAll(async () => {
+  await i18nReady
+  loginSchema = createLoginSchema((key) => i18n.t(key))
+})
 
 describe('loginSchema', () => {
   it('aceita e-mail e senha preenchidos', () => {
@@ -8,13 +21,13 @@ describe('loginSchema', () => {
   })
 
   it('rejeita e-mail inválido e senha vazia', () => {
-    const result = loginSchema.safeParse({ email: 'atleta', password: '' })
+      const result = loginSchema.safeParse({ email: 'atleta', password: '' })
 
     expect(result.success).toBe(false)
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.message)).toEqual([
-        'Digite um e-mail válido.',
-        'Digite sua senha.',
+        i18n.t('auth.validation.invalidEmail'),
+        i18n.t('auth.validation.passwordRequired'),
       ])
     }
   })

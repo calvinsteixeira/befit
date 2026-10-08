@@ -1,6 +1,7 @@
-import { Redirect, Stack } from 'expo-router'
+import { Redirect } from 'expo-router'
 
 import { useSession } from '@/features/auth/session-provider'
+import { AuthenticatedTabs } from '@/features/navigation/components/authenticated-tabs'
 
 export default function AppLayout() {
   const { isLoading, session } = useSession()
@@ -13,5 +14,5 @@ export default function AppLayout() {
     return <Redirect href="/(auth)/login" />
   }
 
-  return <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
+  return <AuthenticatedTabs />
 }

@@ -1,8 +1,12 @@
 import { z } from 'zod'
 
-export const loginSchema = z.object({
-  email: z.string().trim().email('Digite um e-mail válido.'),
-  password: z.string().min(1, 'Digite sua senha.'),
-})
+import type { Translate } from '@/i18n/types'
 
-export type LoginFormData = z.infer<typeof loginSchema>
+export function createLoginSchema(t: Translate) {
+  return z.object({
+    email: z.string().trim().email(t('auth.validation.invalidEmail')),
+    password: z.string().min(1, t('auth.validation.passwordRequired')),
+  })
+}
+
+export type LoginFormData = z.infer<ReturnType<typeof createLoginSchema>>

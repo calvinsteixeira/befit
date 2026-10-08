@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react-native'
-import { useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -20,29 +21,31 @@ import { cn } from '@/lib/utils'
 import { colors } from '@/theme/tokens'
 
 import { useSession } from '../session-provider'
-import { loginSchema, type LoginFormData } from '../schemas/login'
+import { createLoginSchema, type LoginFormData } from '../schemas/login'
 
-const invalidCredentialsMessage = 'E-mail ou senha inválidos.'
-const unexpectedErrorMessage =
-  'Não foi possível entrar agora. Verifique sua conexão e tente novamente.'
-
-function getAuthErrorMessage(error: { status?: number; message?: string } | null) {
+function getAuthErrorMessage(
+  error: { status?: number; message?: string } | null,
+  t: (key: string) => string,
+) {
   if (!error) {
     return null
   }
 
   if (error.status === 400 || error.message?.toLowerCase().includes('invalid login credentials')) {
-    return invalidCredentialsMessage
+    return t('auth.errors.invalidCredentials')
   }
 
-  return unexpectedErrorMessage
+  return t('auth.errors.unexpected')
 }
 
 export function LoginScreen() {
+  const { t } = useTranslation()
   const { signIn } = useSession()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null)
+  const translate = useCallback((key: string) => t(key), [t])
+  const loginSchema = useMemo(() => createLoginSchema(translate), [translate])
   const emailRef = useRef<TextInput>(null)
   const passwordRef = useRef<TextInput>(null)
   const {
@@ -62,10 +65,10 @@ export function LoginScreen() {
       const { error } = await signIn(values)
 
       if (error) {
-        setSubmitError(getAuthErrorMessage(error))
+        setSubmitError(getAuthErrorMessage(error, translate))
       }
     } catch {
-      setSubmitError(unexpectedErrorMessage)
+      setSubmitError(t('auth.errors.unexpected'))
     }
   }
 
@@ -91,10 +94,10 @@ export function LoginScreen() {
                 <BrandLockup />
                 <View className="gap-2">
                   <Text className="text-base font-semibold tracking-wide text-primary">
-                    Seu treino. No seu ritmo.
+                    {t('auth.login.tagline')}
                   </Text>
                   <Text className="text-base leading-6 text-muted-foreground">
-                    Consistência começa com o próximo passo.
+                    {t('auth.login.description')}
                   </Text>
                 </View>
               </View>
@@ -102,10 +105,10 @@ export function LoginScreen() {
               <View className="gap-5 border-t border-border pt-6">
                 <View className="gap-2">
                   <Text variant="h3" className="text-left text-3xl text-foreground">
-                    Entrar para treinar
+                    {t('auth.login.title')}
                   </Text>
                   <Text className="text-base leading-6 text-muted-foreground">
-                    Acesse sua conta para continuar.
+                    {t('auth.login.formDescription')}
                   </Text>
                 </View>
 
@@ -114,7 +117,9 @@ export function LoginScreen() {
                   name="email"
                   render={({ field }) => (
                     <View className="gap-2">
-                      <Text className="text-sm font-medium text-foreground">E-mail</Text>
+                      <Text className="text-sm font-medium text-foreground">
+                        {t('auth.fields.email.label')}
+                      </Text>
                       <Input
                         ref={(instance) => {
                           field.ref(instance)
@@ -134,8 +139,8 @@ export function LoginScreen() {
                         accessibilityState={{
                           disabled: isSubmitting,
                         }}
-                        accessibilityLabel="E-mail"
-                        accessibilityHint="Digite o e-mail da sua conta"
+                        accessibilityLabel={t('auth.fields.email.label')}
+                        accessibilityHint={t('auth.fields.email.hint')}
                         autoCapitalize="none"
                         autoCorrect={false}
                         autoComplete="email"
@@ -159,7 +164,9 @@ export function LoginScreen() {
                   name="password"
                   render={({ field }) => (
                     <View className="gap-2">
-                      <Text className="text-sm font-medium text-foreground">Senha</Text>
+                      <Text className="text-sm font-medium text-foreground">
+                        {t('auth.fields.password.label')}
+                      </Text>
                       <View className="relative">
                         <Input
                           ref={(instance) => {
@@ -181,8 +188,8 @@ export function LoginScreen() {
                           accessibilityState={{
                             disabled: isSubmitting,
                           }}
-                          accessibilityLabel="Senha"
-                          accessibilityHint="Digite sua senha"
+                          accessibilityLabel={t('auth.fields.password.label')}
+                          accessibilityHint={t('auth.fields.password.hint')}
                           autoCapitalize="none"
                           autoCorrect={false}
                           autoComplete="password"
@@ -197,9 +204,11 @@ export function LoginScreen() {
                           size="icon"
                           className="absolute right-0 top-0"
                           accessibilityLabel={
-                            isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
+                            isPasswordVisible
+                              ? t('auth.actions.hidePassword')
+                              : t('auth.actions.showPassword')
                           }
-                          accessibilityHint="Alterna a visibilidade da senha"
+                          accessibilityHint={t('auth.actions.passwordVisibilityHint')}
                           onPress={() => setIsPasswordVisible((visible) => !visible)}
                           disabled={isSubmitting}
                         >
@@ -238,12 +247,18 @@ export function LoginScreen() {
                   className="mt-1 w-full"
                   onPress={handleSubmit(onSubmit)}
                   disabled={isSubmitting}
-                  accessibilityLabel="Entrar"
+                  accessibilityLabel={t('auth.actions.signIn')}
                 >
                   {isSubmitting ? (
-                    <ActivityIndicator color={colors.onAccent} accessibilityLabel="Entrando" />
+                    <View className="flex-row items-center gap-2">
+                      <ActivityIndicator
+                        color={colors.onAccent}
+                        accessibilityLabel={t('auth.status.signingIn')}
+                      />
+                      <Text>{t('auth.status.signingIn')}</Text>
+                    </View>
                   ) : (
-                    <Text>Entrar</Text>
+                    <Text>{t('auth.actions.signIn')}</Text>
                   )}
                 </Button>
               </View>
@@ -255,4 +270,4 @@ export function LoginScreen() {
   )
 }
 
-export { getAuthErrorMessage, invalidCredentialsMessage, unexpectedErrorMessage }
+export { getAuthErrorMessage }
