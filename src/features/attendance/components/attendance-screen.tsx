@@ -1,14 +1,54 @@
-import { CalendarCheck2 } from 'lucide-react-native'
-import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 import { ScrollView, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { Card } from '@/components/ui/card'
 import { Text } from '@/components/ui/text'
-import { colors, spacing } from '@/theme/tokens'
+import { spacing } from '@/theme/tokens'
+
+import {
+  getCurrentAttendanceMonth,
+  useAttendanceMonth,
+  useConfirmAttendance,
+  useRemoveAttendance,
+} from '../hooks/use-attendance'
+import { addLocalMonths, getLocalDateKey } from '../utils/local-date'
+import { MonthlyAttendanceCalendar } from './monthly-attendance-calendar'
 
 export function AttendanceScreen() {
   const { t } = useTranslation()
+  const todayKey = getLocalDateKey()
+  const currentMonthKey = getCurrentAttendanceMonth()
+  const [monthKey, setMonthKey] = useState(currentMonthKey)
+  const [pendingDateKeys, setPendingDateKeys] = useState<Set<string>>(new Set())
+  const [actionErrorDateKey, setActionErrorDateKey] = useState<string | null>(null)
+  const monthQuery = useAttendanceMonth(monthKey)
+  const confirmMutation = useConfirmAttendance()
+  const removeMutation = useRemoveAttendance()
+
+  function handleToggleDate(dateKey: string) {
+    if (pendingDateKeys.has(dateKey)) {
+      return
+    }
+
+    const isMarked = Boolean(monthQuery.data?.records.some((record) => record.attendedOn === dateKey))
+    setActionErrorDateKey(null)
+    setPendingDateKeys((current) => new Set(current).add(dateKey))
+
+    const mutation = isMarked ? removeMutation : confirmMutation
+    void mutation
+      .mutateAsync(dateKey)
+      .catch(() => {
+        setActionErrorDateKey(dateKey)
+      })
+      .finally(() => {
+        setPendingDateKeys((current) => {
+          const next = new Set(current)
+          next.delete(dateKey)
+          return next
+        })
+      })
+  }
 
   return (
     <SafeAreaView
@@ -17,33 +57,43 @@ export function AttendanceScreen() {
       testID="attendance-screen"
     >
       <ScrollView
-        contentContainerStyle={{ paddingBottom: spacing.xxl }}
+        contentContainerStyle={{ paddingBottom: spacing.xxl + spacing.lg }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="gap-8 px-6 py-8">
+        <View className="gap-6 px-6 py-8">
           <View className="gap-2">
             <Text variant="h1" className="text-left text-3xl text-foreground">
-              {t('attendance.heading')}
+              {t('attendance.question')}
+            </Text>
+            <Text className="text-base leading-6 text-muted-foreground">
+              {t('attendance.questionDescription')}
             </Text>
           </View>
 
-          <Card className="gap-3 rounded-lg border-border bg-card p-5">
-            <CalendarCheck2
-              accessibilityElementsHidden
-              aria-hidden={true}
-              color={colors.accent}
-              size={spacing.xl}
-              strokeWidth={1.75}
-            />
+          <MonthlyAttendanceCalendar
+            canGoNext={monthKey < currentMonthKey}
+            isError={monthQuery.isError}
+            isLoading={monthQuery.isLoading}
+            monthKey={monthKey}
+            onNextMonth={() => setMonthKey((current) => addLocalMonths(current, 1))}
+            onPreviousMonth={() => setMonthKey((current) => addLocalMonths(current, -1))}
+            onRetry={() => void monthQuery.refetch()}
+            onToggleDate={handleToggleDate}
+            pendingDateKeys={pendingDateKeys}
+            records={monthQuery.data?.records ?? []}
+            todayKey={todayKey}
+          />
+
+          {actionErrorDateKey ? (
             <View className="gap-2">
-              <Text variant="h3" className="text-left text-xl text-card-foreground">
-                {t('attendance.historyTitle')}
+              <Text accessibilityRole="alert" className="text-base leading-6 text-destructive">
+                {t('attendance.errors.action')}
               </Text>
-              <Text className="text-base leading-6 text-muted-foreground">
-                {t('attendance.emptyDescription')}
+              <Text className="text-sm leading-5 text-muted-foreground">
+                {t('attendance.calendar.actionErrorHint')}
               </Text>
             </View>
-          </Card>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>
