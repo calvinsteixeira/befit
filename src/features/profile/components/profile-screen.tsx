@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import { BrandMark } from '@/components/brand/brand-mark'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Text } from '@/components/ui/text'
 import { colors, spacing } from '@/theme/tokens'
 
@@ -48,28 +48,19 @@ export function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-8 px-6 py-8">
-          <View className="gap-3">
-            <Text variant="h1" className="text-left text-3xl text-foreground">
-              {t('profile.title')}
-            </Text>
-            <Text className="text-base leading-6 text-muted-foreground">
-              {t('profile.description')}
-            </Text>
-          </View>
-
-          <Card className="gap-4 rounded-lg border-border bg-card p-6">
-            <Text variant="h3" className="text-left text-xl text-card-foreground">
-              {t('profile.accountTitle')}
-            </Text>
-            <View className="gap-1">
-              <Text className="text-sm font-medium text-muted-foreground">
-                {t('profile.emailLabel')}
-              </Text>
-              <Text className="text-base text-card-foreground">
-                {user?.email ?? t('profile.emailUnavailable')}
-              </Text>
+          <View className="gap-5 border-b border-border pb-6">
+            <View className="flex-row items-center gap-4">
+              <BrandMark size="compact" />
+              <View className="flex-1 gap-1">
+                <Text className="text-sm font-medium tracking-wide text-primary">
+                  {t('profile.accountContext')}
+                </Text>
+                <Text className="text-base text-foreground">
+                  {user?.email ?? t('profile.emailUnavailable')}
+                </Text>
+              </View>
             </View>
-          </Card>
+          </View>
 
           {signOutError ? (
             <View
@@ -87,12 +78,13 @@ export function ProfileScreen() {
           ) : null}
 
           <Button
-            className="w-full"
+            className="self-start"
             disabled={isSigningOut}
             onPress={handleSignOut}
             accessibilityLabel={t('profile.actions.signOut')}
             accessibilityState={{ disabled: isSigningOut }}
             testID="profile-sign-out"
+            variant="outline"
           >
             {isSigningOut ? (
               <View className="flex-row items-center gap-2">

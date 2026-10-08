@@ -21,16 +21,13 @@ export function AttendanceScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-8 px-6 py-8">
-          <View className="gap-3">
+          <View className="gap-2">
             <Text variant="h1" className="text-left text-3xl text-foreground">
-              {t('attendance.title')}
-            </Text>
-            <Text className="text-base leading-6 text-muted-foreground">
-              {t('attendance.description')}
+              {t('attendance.heading')}
             </Text>
           </View>
 
-          <Card className="gap-4 rounded-lg border-border bg-card p-6">
+          <Card className="gap-3 rounded-lg border-border bg-card p-5">
             <CalendarCheck2
               accessibilityElementsHidden
               aria-hidden={true}

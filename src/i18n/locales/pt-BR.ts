@@ -41,28 +41,27 @@ const ptBR = {
       profile: 'Perfil',
     },
     home: {
-      greeting: 'Vamos manter o ritmo?',
-      title: 'Seu treino começa com consistência.',
-      description: 'Acompanhe sua rotina e evolua no seu próprio ritmo.',
+      greeting: {
+        morning: 'Bom dia.',
+        afternoon: 'Boa tarde.',
+        evening: 'Boa noite.',
+      },
+      title: 'Evolua no seu ritmo.',
       empty: {
-        title: 'Seu resumo de presença aparecerá aqui',
-        description: 'Quando houver registros reais, você verá suas idas à academia neste espaço.',
+        title: 'Nenhuma presença registrada',
+        description: 'Suas idas à academia aparecerão aqui.',
       },
     },
     attendance: {
-      title: 'Presença',
-      description: 'Acompanhe suas idas à academia, sem confundir presença com plano de treino.',
+      heading: 'Idas à academia',
       historyTitle: 'Histórico de presença',
-      emptyDescription: 'Seu histórico aparecerá aqui quando houver registros reais de presença.',
+      emptyDescription: 'Seu histórico aparecerá aqui. Presença é ida à academia, não plano de treino.',
     },
     profile: {
-      title: 'Perfil',
-      description: 'Veja os dados básicos da sua conta.',
-      accountTitle: 'Dados da conta',
-      emailLabel: 'E-mail',
+      accountContext: 'Conta autenticada',
       emailUnavailable: 'E-mail não disponível',
       actions: {
-        signOut: 'Sair',
+        signOut: 'Sair da conta',
       },
       status: {
         signingOut: 'Saindo',
