@@ -47,15 +47,64 @@ const ptBR = {
         evening: 'Boa noite.',
       },
       title: 'Evolua no seu ritmo.',
+      today: {
+        title: 'Hoje',
+        confirmed: 'Presença confirmada.',
+        pending: 'Ainda sem registro de presença.',
+      },
+      actions: {
+        viewAttendance: 'Ver presença de hoje',
+      },
+      stats: {
+        streak: 'Sequência atual',
+        week: 'Nesta semana',
+        days: '{{count}} dias',
+        presences: '{{count}} presenças',
+      },
+      recent: {
+        title: 'Últimos sete dias',
+        present: 'Presença confirmada',
+        noRecord: 'Sem registro',
+      },
+      errors: {
+        load: 'Não foi possível carregar suas presenças.',
+        retry: 'Tentar novamente',
+      },
       empty: {
         title: 'Nenhuma presença registrada',
         description: 'Suas idas à academia aparecerão aqui.',
       },
     },
     attendance: {
-      heading: 'Idas à academia',
+      question: 'Você foi à academia hoje?',
+      questionDescription: 'Confirme sua ida. Isso não registra um treino.',
+      actions: {
+        confirm: 'Confirmar presença de hoje',
+        confirming: 'Confirmando',
+        remove: 'Desfazer presença de hoje',
+        removing: 'Removendo',
+        retry: 'Tentar novamente',
+        cancel: 'Cancelar',
+      },
+      status: {
+        confirmed: 'Presença de hoje confirmada',
+        confirmedDescription: 'Sua ida à academia foi registrada.',
+      },
+      confirmation: {
+        title: 'Desfazer presença?',
+        description: 'A confirmação de hoje será removida.',
+        confirm: 'Desfazer',
+      },
       historyTitle: 'Histórico de presença',
-      emptyDescription: 'Seu histórico aparecerá aqui. Presença é ida à academia, não plano de treino.',
+      historyDescription: 'Presença é ida à academia, não plano de treino.',
+      emptyHistory: 'Ainda não há presenças registradas.',
+      present: 'Presença confirmada',
+      noRecord: 'Sem registro',
+      today: 'Hoje',
+      errors: {
+        load: 'Não foi possível carregar suas presenças.',
+        action: 'Não foi possível atualizar a presença agora.',
+      },
     },
     profile: {
       accountContext: 'Conta autenticada',

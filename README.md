@@ -48,6 +48,30 @@ Para testar o login por e-mail e senha no Expo Go:
 
 As credenciais são locais e não devem ser adicionadas ao repositório ou a arquivos `.env`.
 
+## Presença diária
+
+A presença representa uma ida à academia em uma data específica. Ela não registra plano,
+execução de treino ou ficha de exercícios. Nesta primeira versão, cada usuário pode ter no
+máximo uma presença por dia; dias sem registro não são tratados como faltas.
+
+Para aplicar a migration de presença em um Supabase local já iniciado, sem resetar o banco
+nem remover o usuário de teste:
+
+```bash
+pnpm db:start
+pnpm exec supabase migration up
+```
+
+Depois de criar ou reutilizar um usuário em **Authentication → Users** no Studio, entre no
+Expo Go com as credenciais locais. A aba **Presença** permite confirmar ou desfazer a ida do
+dia, e a Home consome os mesmos dados reais para mostrar o estado de hoje, a sequência atual,
+as presenças da semana e os últimos sete dias. Para validar as políticas RLS e a restrição de
+unicidade:
+
+```bash
+pnpm test:integration
+```
+
 ## Comandos
 
 | Comando | Descrição |

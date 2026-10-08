@@ -9,6 +9,7 @@ O Befit é um aplicativo iOS construído com Expo, React Native, TypeScript e Su
 - Instale módulos compatíveis com o SDK usando `pnpm expo install <pacote>`.
 - Não edite `ios/` ou `android/` manualmente; configure o projeto pelo Expo e seus plugins.
 - Antes de adicionar uma dependência, verificar se o Expo já fornece um módulo oficial compatível. Para módulos nativos, usar `pnpm expo install`.
+- Componentes de tela e hooks de UI não podem chamar Supabase diretamente. Cada domínio deve depender de contratos ou repositórios próprios, mantendo integrações externas em adapters isolados. A UI deve depender de casos de uso, hooks ou interfaces do domínio para que uma futura API Nest/.NET possa substituir o adapter Supabase sem reescrever as telas.
 - Antes de concluir mudanças, execute `pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm expo:doctor` e `pnpm build`.
 - Use branches `feat/` ou `fix/` e commits Conventional Commits em português.
