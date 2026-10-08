@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Mantém os tokens atuais do Befit disponíveis para NativeWind/Reusables. */
+    --background: 145.7 17.9% 7.6%;
+    --foreground: 120 12.5% 96.9%;
+    --card: 141.8 19.3% 11.2%;
+    --card-foreground: 120 12.5% 96.9%;
+    --popover: 140 20% 14.7%;
+    --popover-foreground: 120 12.5% 96.9%;
+    --primary: 81.3 87.6% 62.2%;
+    --primary-foreground: 92.5 60% 7.8%;
+    --secondary: 140 20% 14.7%;
+    --secondary-foreground: 120 12.5% 96.9%;
+    --muted: 140 20% 14.7%;
+    --muted-foreground: 133.8 8.4% 69.6%;
+    --accent: 81.3 87.6% 62.2%;
+    --accent-foreground: 92.5 60% 7.8%;
+    --destructive: 0 72% 61%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 144 12.8% 22.9%;
+    --input: 144 12.8% 22.9%;
+    --ring: 81.3 87.6% 62.2%;
+    --chart-1: 81.3 87.6% 62.2%;
+    --chart-2: 145.7 17.9% 35%;
+    --chart-3: 133.8 8.4% 69.6%;
+    --chart-4: 140 20% 14.7%;
+    --chart-5: 144 12.8% 22.9%;
+    --radius: 1rem;
+  }
+
+  .dark:root {
+    --background: 145.7 17.9% 7.6%;
+    --foreground: 120 12.5% 96.9%;
+    --card: 141.8 19.3% 11.2%;
+    --card-foreground: 120 12.5% 96.9%;
+    --popover: 140 20% 14.7%;
+    --popover-foreground: 120 12.5% 96.9%;
+    --primary: 81.3 87.6% 62.2%;
+    --primary-foreground: 92.5 60% 7.8%;
+    --secondary: 140 20% 14.7%;
+    --secondary-foreground: 120 12.5% 96.9%;
+    --muted: 140 20% 14.7%;
+    --muted-foreground: 133.8 8.4% 69.6%;
+    --accent: 81.3 87.6% 62.2%;
+    --accent-foreground: 92.5 60% 7.8%;
+    --destructive: 0 72% 61%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 144 12.8% 22.9%;
+    --input: 144 12.8% 22.9%;
+    --ring: 81.3 87.6% 62.2%;
+    --chart-1: 81.3 87.6% 62.2%;
+    --chart-2: 145.7 17.9% 35%;
+    --chart-3: 133.8 8.4% 69.6%;
+    --chart-4: 140 20% 14.7%;
+    --chart-5: 144 12.8% 22.9%;
+    --radius: 1rem;
+  }
+}

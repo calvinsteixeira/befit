@@ -3,6 +3,16 @@
 Aplicativo iOS para gestão de treinos de academia, construído com Expo, React Native,
 TypeScript e Supabase.
 
+## Stack de interface
+
+- Expo SDK 57 com Expo Router e rotas baseadas em arquivos em `app/`;
+- NativeWind v4.2.7 + Tailwind CSS 3.4.17;
+- React Native Reusables para primitives locais em `src/components/ui/`;
+- Lucide React Native para ícones vetoriais;
+- TanStack Query para dados remotos do Supabase;
+- Zustand reservado para estado local de interface e fluxo;
+- React Hook Form + Zod para formulários e validação.
+
 ## Requisitos
 
 - Node.js 22
@@ -46,17 +56,26 @@ exibidos pelo comando `pnpm db:start`.
 ## Estrutura
 
 ```text
+app/                     # rotas do Expo Router
 src/
+├── components/ui/       # primitives reutilizáveis
+├── features/            # funcionalidades organizadas por domínio
 ├── lib/supabase/        # cliente e configuração do Supabase
+├── lib/query/           # QueryClient e provider
+├── schemas/             # schemas Zod dos formulários
 ├── screens/             # telas da aplicação
-└── theme/               # tokens visuais fundamentais
+├── stores/              # estado local Zustand por domínio
+└── theme/               # tokens visuais e mapeamento semântico
 supabase/
 └── tests/database/      # testes de integração do banco
 ```
 
-Novas funcionalidades serão organizadas por domínio em `src/features/<dominio>`. Bibliotecas
-de navegação, UI, estado e formulários serão definidas quando os requisitos funcionais forem
-conhecidos.
+O cliente e o provider do TanStack Query ficam em `src/lib/query`. Consultas futuras ao
+Supabase devem usar TanStack Query; Zustand não deve duplicar estado remoto. Formulários
+futuros devem usar React Hook Form com schemas Zod em `src/schemas`.
+
+O tema visual mantém os tokens atuais em `src/theme/tokens.ts` e os expõe como variáveis
+semânticas para NativeWind/Reusables em `global.css`.
 
 ## Pipeline
 
