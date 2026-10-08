@@ -11,10 +11,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-import { Text } from '@/components/ui/text'
+import { BrandLockup } from '@/components/brand/brand-mark'
 import { colors } from '@/theme/tokens'
-
-const logoSource = require('../../../../assets/brand/befit-mark.png')
 
 interface LaunchScreenProps {
   ready: boolean
@@ -100,16 +98,8 @@ export function LaunchScreen({ ready, onComplete, onLayout }: LaunchScreenProps)
       onLayout={onLayout}
       style={styles.container}
     >
-      <Animated.View style={[styles.brandLockup, animatedStyle]}>
-        <Animated.Image
-          source={logoSource}
-          resizeMode="contain"
-          accessible={false}
-          style={styles.logo}
-        />
-        <Text accessible={false} className="mt-5 text-3xl font-semibold tracking-[5px] text-primary">
-          befit
-        </Text>
+      <Animated.View style={animatedStyle}>
+        <BrandLockup markSize="hero" />
       </Animated.View>
     </SafeAreaView>
   )
@@ -125,12 +115,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
-  },
-  brandLockup: {
-    alignItems: 'center',
-  },
-  logo: {
-    width: 152,
-    height: 152,
   },
 })

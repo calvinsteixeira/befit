@@ -12,10 +12,11 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import { BrandLockup, BrandMark } from '@/components/brand/brand-mark'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/text'
+import { cn } from '@/lib/utils'
 import { colors } from '@/theme/tokens'
 
 import { useSession } from '../session-provider'
@@ -41,6 +42,7 @@ export function LoginScreen() {
   const { signIn } = useSession()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null)
   const emailRef = useRef<TextInput>(null)
   const passwordRef = useRef<TextInput>(null)
   const {
@@ -79,134 +81,173 @@ export function LoginScreen() {
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
-          <View className="flex-1 justify-center gap-8 px-6 py-8">
-            <View accessible accessibilityLabel="Befit" className="gap-3">
-              <Text className="text-4xl font-semibold tracking-tight text-foreground">Befit</Text>
-              <Text variant="h2" className="text-left text-3xl text-foreground">
-                Bem-vindo de volta
-              </Text>
-              <Text className="text-base leading-6 text-muted-foreground">
-                Entre para continuar sua jornada de treino.
-              </Text>
+          <View className="flex-1 overflow-hidden px-6 py-8">
+            <View pointerEvents="none" className="absolute -right-28 -top-20">
+              <BrandMark size="ambient" className="opacity-5" />
             </View>
 
-            <Card className="w-full gap-5 p-6">
-              <Controller
-                control={control}
-                name="email"
-                render={({ field }) => (
-                  <View className="gap-2">
-                    <Text className="text-sm font-medium text-foreground">E-mail</Text>
-                    <Input
-                      ref={(instance) => {
-                        field.ref(instance)
-                        emailRef.current = instance
-                      }}
-                      value={field.value}
-                      onChangeText={field.onChange}
-                      onBlur={field.onBlur}
-                      accessibilityLabel="E-mail"
-                      accessibilityHint="Digite o e-mail da sua conta"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      autoComplete="email"
-                      keyboardType="email-address"
-                      textContentType="emailAddress"
-                      returnKeyType="next"
-                      onSubmitEditing={() => passwordRef.current?.focus()}
-                      editable={!isSubmitting}
-                    />
-                    {errors.email?.message ? (
-                      <Text accessibilityLiveRegion="polite" className="text-sm text-destructive">
-                        {errors.email.message}
-                      </Text>
-                    ) : null}
-                  </View>
-                )}
-              />
+            <View className="mx-auto w-full max-w-md gap-10">
+              <View className="gap-6">
+                <BrandLockup />
+                <View className="gap-2">
+                  <Text className="text-base font-semibold tracking-wide text-primary">
+                    Seu treino. No seu ritmo.
+                  </Text>
+                  <Text className="text-base leading-6 text-muted-foreground">
+                    Consistência começa com o próximo passo.
+                  </Text>
+                </View>
+              </View>
 
-              <Controller
-                control={control}
-                name="password"
-                render={({ field }) => (
-                  <View className="gap-2">
-                    <Text className="text-sm font-medium text-foreground">Senha</Text>
-                    <View className="relative">
+              <View className="gap-5 border-t border-border pt-6">
+                <View className="gap-2">
+                  <Text variant="h3" className="text-left text-3xl text-foreground">
+                    Entrar para treinar
+                  </Text>
+                  <Text className="text-base leading-6 text-muted-foreground">
+                    Acesse sua conta para continuar.
+                  </Text>
+                </View>
+
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field }) => (
+                    <View className="gap-2">
+                      <Text className="text-sm font-medium text-foreground">E-mail</Text>
                       <Input
                         ref={(instance) => {
                           field.ref(instance)
-                          passwordRef.current = instance
+                          emailRef.current = instance
                         }}
                         value={field.value}
                         onChangeText={field.onChange}
-                        onBlur={field.onBlur}
-                        className="pr-14"
-                        accessibilityLabel="Senha"
-                        accessibilityHint="Digite sua senha"
+                        onBlur={() => {
+                          setFocusedField(null)
+                          field.onBlur()
+                        }}
+                        onFocus={() => setFocusedField('email')}
+                        className={cn(
+                          focusedField === 'email' && 'border-primary',
+                          errors.email?.message && 'border-destructive',
+                        )}
+                        accessibilityState={{
+                          disabled: isSubmitting,
+                        }}
+                        accessibilityLabel="E-mail"
+                        accessibilityHint="Digite o e-mail da sua conta"
                         autoCapitalize="none"
                         autoCorrect={false}
-                        autoComplete="password"
-                        textContentType="password"
-                        secureTextEntry={!isPasswordVisible}
-                        returnKeyType="done"
-                        onSubmitEditing={handleSubmit(onSubmit)}
+                        autoComplete="email"
+                        keyboardType="email-address"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        onSubmitEditing={() => passwordRef.current?.focus()}
                         editable={!isSubmitting}
                       />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0"
-                        accessibilityLabel={
-                          isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
-                        }
-                        accessibilityHint="Alterna a visibilidade da senha"
-                        onPress={() => setIsPasswordVisible((visible) => !visible)}
-                        disabled={isSubmitting}
-                      >
-                        {isPasswordVisible ? (
-                          <EyeOff color={colors.muted} size={20} aria-hidden={true} />
-                        ) : (
-                          <Eye color={colors.muted} size={20} aria-hidden={true} />
-                        )}
-                      </Button>
+                      {errors.email?.message ? (
+                        <Text accessibilityLiveRegion="polite" className="text-sm text-destructive">
+                          {errors.email.message}
+                        </Text>
+                      ) : null}
                     </View>
-                    {errors.password?.message ? (
-                      <Text accessibilityLiveRegion="polite" className="text-sm text-destructive">
-                        {errors.password.message}
-                      </Text>
-                    ) : null}
-                  </View>
-                )}
-              />
+                  )}
+                />
 
-              {submitError ? (
-                <View
-                  accessible
-                  accessibilityRole="alert"
-                  className="rounded-md border border-destructive/60 bg-destructive/10 p-3"
-                >
-                  <Text
-                    accessibilityLiveRegion="assertive"
-                    className="text-sm leading-5 text-foreground"
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <View className="gap-2">
+                      <Text className="text-sm font-medium text-foreground">Senha</Text>
+                      <View className="relative">
+                        <Input
+                          ref={(instance) => {
+                            field.ref(instance)
+                            passwordRef.current = instance
+                          }}
+                          value={field.value}
+                          onChangeText={field.onChange}
+                          onBlur={() => {
+                            setFocusedField(null)
+                            field.onBlur()
+                          }}
+                          onFocus={() => setFocusedField('password')}
+                          className={cn(
+                            'pr-14',
+                            focusedField === 'password' && 'border-primary',
+                            errors.password?.message && 'border-destructive',
+                          )}
+                          accessibilityState={{
+                            disabled: isSubmitting,
+                          }}
+                          accessibilityLabel="Senha"
+                          accessibilityHint="Digite sua senha"
+                          autoCapitalize="none"
+                          autoCorrect={false}
+                          autoComplete="password"
+                          textContentType="password"
+                          secureTextEntry={!isPasswordVisible}
+                          returnKeyType="done"
+                          onSubmitEditing={handleSubmit(onSubmit)}
+                          editable={!isSubmitting}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0"
+                          accessibilityLabel={
+                            isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
+                          }
+                          accessibilityHint="Alterna a visibilidade da senha"
+                          onPress={() => setIsPasswordVisible((visible) => !visible)}
+                          disabled={isSubmitting}
+                        >
+                          {isPasswordVisible ? (
+                            <EyeOff color={colors.muted} size={20} aria-hidden={true} />
+                          ) : (
+                            <Eye color={colors.muted} size={20} aria-hidden={true} />
+                          )}
+                        </Button>
+                      </View>
+                      {errors.password?.message ? (
+                        <Text accessibilityLiveRegion="polite" className="text-sm text-destructive">
+                          {errors.password.message}
+                        </Text>
+                      ) : null}
+                    </View>
+                  )}
+                />
+
+                {submitError ? (
+                  <View
+                    accessible
+                    accessibilityRole="alert"
+                    className="rounded-md border border-destructive/60 bg-destructive/10 p-3"
                   >
-                    {submitError}
-                  </Text>
-                </View>
-              ) : null}
+                    <Text
+                      accessibilityLiveRegion="assertive"
+                      className="text-sm leading-5 text-foreground"
+                    >
+                      {submitError}
+                    </Text>
+                  </View>
+                ) : null}
 
-              <Button
-                className="mt-1 w-full"
-                onPress={handleSubmit(onSubmit)}
-                disabled={isSubmitting}
-                accessibilityLabel="Entrar"
-              >
-                {isSubmitting ? (
-                  <ActivityIndicator color={colors.onAccent} accessibilityLabel="Entrando" />
-                ) : (
-                  <Text>Entrar</Text>
-                )}
-              </Button>
-            </Card>
+                <Button
+                  className="mt-1 w-full"
+                  onPress={handleSubmit(onSubmit)}
+                  disabled={isSubmitting}
+                  accessibilityLabel="Entrar"
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator color={colors.onAccent} accessibilityLabel="Entrando" />
+                  ) : (
+                    <Text>Entrar</Text>
+                  )}
+                </Button>
+              </View>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
