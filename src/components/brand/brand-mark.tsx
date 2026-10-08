@@ -24,7 +24,7 @@ interface BrandMarkProps extends Omit<ImageProps, 'source' | 'style' | 'accessib
 export function BrandMark({
   size = 'hero',
   decorative = true,
-  accessibilityLabel = 'Marca Befit',
+  accessibilityLabel = 'Befit',
   style,
   ...props
 }: BrandMarkProps) {

@@ -42,7 +42,8 @@
             "image": "./assets/brand/befit-mark.png"
           }
         }
-      ]
+      ],
+      "expo-localization"
     ]
   }
 }
