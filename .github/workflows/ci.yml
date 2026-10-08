@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Qualidade e build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v5
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+      - name: Verificar lint
+        run: pnpm lint
+      - name: Verificar tipos
+        run: pnpm typecheck
+      - name: Executar testes
+        run: pnpm test
+      - name: Validar configuração do Expo
+        run: pnpm expo:doctor
+      - name: Validar bundle iOS
+        run: pnpm build
+
+  integration:
+    name: Integração Supabase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v5
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+      - name: Iniciar Supabase local
+        run: pnpm db:start
+      - name: Aplicar migrations
+        run: pnpm db:reset
+      - name: Executar testes de banco
+        run: pnpm test:integration
+      - name: Encerrar Supabase local
+        if: always()
+        run: pnpm db:stop
