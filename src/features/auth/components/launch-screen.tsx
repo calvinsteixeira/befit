@@ -7,19 +7,22 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated'
 
+import { Text } from '@/components/ui/text'
 import { colors } from '@/theme/tokens'
 
-const logoSource = require('../../../../assets/icon.png')
+const logoSource = require('../../../../assets/brand/befit-mark.png')
 
 interface LaunchScreenProps {
   ready: boolean
   onComplete: () => void
+  onLayout: () => void
 }
 
-export function LaunchScreen({ ready, onComplete }: LaunchScreenProps) {
+export function LaunchScreen({ ready, onComplete, onLayout }: LaunchScreenProps) {
   const opacity = useSharedValue(0)
   const scale = useSharedValue(0.94)
   const [reduceMotion, setReduceMotion] = useState<boolean | null>(null)
@@ -71,13 +74,16 @@ export function LaunchScreen({ ready, onComplete }: LaunchScreenProps) {
       40,
       withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) }),
     )
-    scale.value = withDelay(
-      40,
-      withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) }, (finished) => {
-        if (finished) {
-          runOnJS(complete)()
-        }
-      }),
+    scale.value = withSequence(
+      withDelay(40, withTiming(1, { duration: 620, easing: Easing.out(Easing.cubic) })),
+      withDelay(
+        160,
+        withTiming(1, { duration: 1 }, (finished) => {
+          if (finished) {
+            runOnJS(complete)()
+          }
+        }),
+      ),
     )
   }, [complete, opacity, ready, reduceMotion, scale])
 
@@ -91,14 +97,20 @@ export function LaunchScreen({ ready, onComplete }: LaunchScreenProps) {
       pointerEvents="none"
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
+      onLayout={onLayout}
       style={styles.container}
     >
-      <Animated.Image
-        source={logoSource}
-        resizeMode="contain"
-        accessible={false}
-        style={[styles.logo, animatedStyle]}
-      />
+      <Animated.View style={[styles.brandLockup, animatedStyle]}>
+        <Animated.Image
+          source={logoSource}
+          resizeMode="contain"
+          accessible={false}
+          style={styles.logo}
+        />
+        <Text accessible={false} className="mt-5 text-3xl font-semibold tracking-[5px] text-primary">
+          befit
+        </Text>
+      </Animated.View>
     </SafeAreaView>
   )
 }
@@ -114,9 +126,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.background,
   },
+  brandLockup: {
+    alignItems: 'center',
+  },
   logo: {
-    width: 112,
-    height: 112,
-    borderRadius: 28,
+    width: 152,
+    height: 152,
   },
 })

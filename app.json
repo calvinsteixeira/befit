@@ -34,12 +34,12 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#101713",
-          "image": "./assets/icon.png",
-          "imageWidth": 160,
+          "image": "./assets/brand/befit-mark.png",
+          "imageWidth": 180,
           "resizeMode": "contain",
           "dark": {
             "backgroundColor": "#101713",
-            "image": "./assets/icon.png"
+            "image": "./assets/brand/befit-mark.png"
           }
         }
       ]
