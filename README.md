@@ -63,10 +63,10 @@ pnpm exec supabase migration up
 ```
 
 Depois de criar ou reutilizar um usuário em **Authentication → Users** no Studio, entre no
-Expo Go com as credenciais locais. A aba **Presença** permite confirmar ou desfazer a ida do
-dia, e a Home consome os mesmos dados reais para mostrar o estado de hoje, a sequência atual,
-as presenças da semana e os últimos sete dias. Para validar as políticas RLS e a restrição de
-unicidade:
+Expo Go com as credenciais locais. A aba **Presença** mostra um calendário mensal: toque em
+qualquer dia passado ou no dia atual para marcar ou remover a ida à academia. Dias futuros são
+desabilitados. A Home consome os mesmos dados reais e exibe somente a sequência atual e o total
+de presenças do mês. Para validar as políticas RLS e a restrição de unicidade:
 
 ```bash
 pnpm test:integration

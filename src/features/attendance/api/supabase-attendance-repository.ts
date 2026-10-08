@@ -39,7 +39,7 @@ export const supabaseAttendanceRepository: AttendanceRepository = {
     return (data as AttendanceRow[]).map(toDomainRecord)
   },
 
-  async getToday(userId: string, attendedOn: string) {
+  async get(userId: string, attendedOn: string) {
     const { data, error } = await supabase
       .from(TABLE)
       .select(COLUMNS)
@@ -54,7 +54,7 @@ export const supabaseAttendanceRepository: AttendanceRepository = {
     return data ? toDomainRecord(data as AttendanceRow) : null
   },
 
-  async confirmToday(userId: string, attendedOn: string) {
+  async confirm(userId: string, attendedOn: string) {
     const { data, error } = await supabase
       .from(TABLE)
       .insert({ user_id: userId, attended_on: attendedOn })
@@ -62,7 +62,7 @@ export const supabaseAttendanceRepository: AttendanceRepository = {
       .single()
 
     if (error?.code === '23505') {
-      const existing = await this.getToday(userId, attendedOn)
+      const existing = await this.get(userId, attendedOn)
 
       if (existing) {
         return existing
@@ -76,7 +76,7 @@ export const supabaseAttendanceRepository: AttendanceRepository = {
     return toDomainRecord(data as AttendanceRow)
   },
 
-  async removeToday(userId: string, attendedOn: string) {
+  async remove(userId: string, attendedOn: string) {
     const { error } = await supabase
       .from(TABLE)
       .delete()

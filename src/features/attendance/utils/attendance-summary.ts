@@ -1,5 +1,5 @@
-import type { AttendanceDay, AttendanceRecord } from '../types/attendance'
-import { addLocalDays, getCurrentWeekStartKey, getRecentDateKeys } from './local-date'
+import type { AttendanceRecord } from '../types/attendance'
+import { addLocalDays } from './local-date'
 
 export function calculateCurrentStreak(records: Pick<AttendanceRecord, 'attendedOn'>[], todayKey: string) {
   const attendedDates = new Set(records.map((record) => record.attendedOn))
@@ -15,25 +15,11 @@ export function calculateCurrentStreak(records: Pick<AttendanceRecord, 'attended
   return streak
 }
 
-export function countCurrentWeekPresences(
+export function countCurrentMonthPresences(
   records: Pick<AttendanceRecord, 'attendedOn'>[],
   todayKey: string,
 ) {
-  const weekStartKey = getCurrentWeekStartKey(todayKey)
+  const currentMonthKey = todayKey.slice(0, 7)
 
-  return records.filter(
-    (record) => record.attendedOn >= weekStartKey && record.attendedOn <= todayKey,
-  ).length
-}
-
-export function buildRecentAttendanceDays(
-  records: AttendanceRecord[],
-  todayKey: string,
-): AttendanceDay[] {
-  const recordsByDate = new Map(records.map((record) => [record.attendedOn, record]))
-
-  return getRecentDateKeys(todayKey).map((dateKey) => ({
-    dateKey,
-    record: recordsByDate.get(dateKey) ?? null,
-  }))
+  return records.filter((record) => record.attendedOn.startsWith(currentMonthKey)).length
 }

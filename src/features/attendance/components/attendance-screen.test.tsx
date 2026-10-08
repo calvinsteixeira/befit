@@ -1,129 +1,176 @@
-import { fireEvent, render, screen } from '@testing-library/react-native'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 import { I18nextProvider } from 'react-i18next'
 
 import i18n, { i18nReady } from '@/i18n'
 
 import { AttendanceScreen } from './attendance-screen'
+import { addLocalDays, addLocalMonths, getLocalDateKey, getLocalMonthKey } from '../utils/local-date'
 
 jest.mock('expo-localization', () => ({
   getLocales: () => [{ languageTag: 'pt-BR' }],
 }))
 jest.mock('lucide-react-native', () => ({
-  CalendarCheck2: () => null,
-  CheckCircle2: () => null,
-  CircleDashed: () => null,
-}))
-jest.mock('@/features/auth/session-provider', () => ({
-  useSession: () => ({ user: { id: 'user-1' } }),
+  Check: () => null,
+  ChevronLeft: () => null,
+  ChevronRight: () => null,
 }))
 jest.mock('@/features/attendance/hooks/use-attendance', () => ({
-  useAttendanceSummary: jest.fn(),
-  useConfirmToday: jest.fn(),
-  useRemoveToday: jest.fn(),
+  getCurrentAttendanceMonth: jest.fn(),
+  useAttendanceMonth: jest.fn(),
+  useConfirmAttendance: jest.fn(),
+  useRemoveAttendance: jest.fn(),
 }))
 
 const attendanceHooks = jest.requireMock('@/features/attendance/hooks/use-attendance') as {
-  useAttendanceSummary: jest.Mock
-  useConfirmToday: jest.Mock
-  useRemoveToday: jest.Mock
+  getCurrentAttendanceMonth: jest.Mock
+  useAttendanceMonth: jest.Mock
+  useConfirmAttendance: jest.Mock
+  useRemoveAttendance: jest.Mock
 }
-const mockUseAttendanceSummary = attendanceHooks.useAttendanceSummary
-const mockConfirmToday = jest.fn()
-const mockRemoveToday = jest.fn()
+const todayKey = getLocalDateKey()
+const monthKey = getLocalMonthKey()
+const markedDateKey = addLocalDays(todayKey, -1)
+const futureDateKey = addLocalDays(todayKey, 1)
+const mockConfirmAsync = jest.fn()
+const mockRemoveAsync = jest.fn()
 
-const emptySummary = {
-  today: null,
-  currentStreak: 0,
-  currentWeekCount: 0,
-  recentDays: [
-    { dateKey: '2026-10-01', record: null },
-    { dateKey: '2026-10-02', record: null },
-    { dateKey: '2026-10-03', record: null },
-    { dateKey: '2026-10-04', record: null },
-    { dateKey: '2026-10-05', record: null },
-    { dateKey: '2026-10-06', record: null },
-    { dateKey: '2026-10-07', record: null },
-  ],
+function renderAttendance() {
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <AttendanceScreen />
+    </I18nextProvider>,
+  )
 }
 
 describe('AttendanceScreen', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
   beforeEach(() => {
-    mockConfirmToday.mockReset()
-    mockRemoveToday.mockReset()
-    attendanceHooks.useConfirmToday.mockReturnValue({
-      mutate: mockConfirmToday,
-      isPending: false,
-      isError: false,
-    })
-    attendanceHooks.useRemoveToday.mockReturnValue({
-      mutate: mockRemoveToday,
-      isPending: false,
-      isError: false,
-    })
-    mockUseAttendanceSummary.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: emptySummary,
-      refetch: jest.fn(),
-    })
-  })
-
-  it('oferece confirmação quando hoje ainda não tem presença', async () => {
-    await i18nReady
-    await render(
-      <I18nextProvider i18n={i18n}>
-        <AttendanceScreen />
-      </I18nextProvider>,
-    )
-
-    fireEvent.press(screen.getByTestId('attendance-confirm'))
-
-    expect(mockConfirmToday).toHaveBeenCalledTimes(1)
-    expect(screen.getAllByText(i18n.t('attendance.noRecord')).length).toBeGreaterThan(0)
-  })
-
-  it('exibe estado confirmado e ação para desfazer', async () => {
-    mockUseAttendanceSummary.mockReturnValue({
+    mockConfirmAsync.mockReset().mockResolvedValue(undefined)
+    mockRemoveAsync.mockReset().mockResolvedValue(undefined)
+    attendanceHooks.getCurrentAttendanceMonth.mockReturnValue(monthKey)
+    attendanceHooks.useAttendanceMonth.mockImplementation((requestedMonthKey: string) => ({
       isLoading: false,
       isError: false,
       data: {
-        ...emptySummary,
-        today: {
-          id: 'attendance-1',
-          userId: 'user-1',
-          attendedOn: '2026-10-07',
-          createdAt: '2026-10-07T12:00:00.000Z',
-        },
+        monthKey: requestedMonthKey,
+        records: [
+          {
+            id: 'attendance-1',
+            userId: 'user-1',
+            attendedOn: markedDateKey,
+            createdAt: `${markedDateKey}T12:00:00.000Z`,
+          },
+        ],
       },
       refetch: jest.fn(),
-    })
-
-    await i18nReady
-    await render(
-      <I18nextProvider i18n={i18n}>
-        <AttendanceScreen />
-      </I18nextProvider>,
-    )
-
-    expect(screen.getByText(i18n.t('attendance.status.confirmed'))).toBeOnTheScreen()
-    expect(screen.getByTestId('attendance-remove')).toBeOnTheScreen()
-    expect(screen.queryByTestId('attendance-confirm')).not.toBeOnTheScreen()
+    }))
+    attendanceHooks.useConfirmAttendance.mockReturnValue({ mutateAsync: mockConfirmAsync })
+    attendanceHooks.useRemoveAttendance.mockReturnValue({ mutateAsync: mockRemoveAsync })
   })
 
-  it('exibe retry quando a consulta falha', async () => {
-    const refetch = jest.fn()
-    mockUseAttendanceSummary.mockReturnValue({ isLoading: false, isError: true, refetch })
-
+  it('monta o mês em uma grade de sete colunas e impede avançar ao futuro', async () => {
     await i18nReady
-    await render(
-      <I18nextProvider i18n={i18n}>
-        <AttendanceScreen />
-      </I18nextProvider>,
+    await renderAttendance()
+
+    expect(screen.getByTestId('calendar-grid')).toBeOnTheScreen()
+    expect(screen.getAllByTestId(/^calendar-day-/)).toHaveLength(
+      new Date(Number(monthKey.slice(0, 4)), Number(monthKey.slice(5, 7)), 0).getDate(),
+    )
+    expect(screen.getByTestId('calendar-next-month').props.accessibilityState.disabled).toBe(true)
+    const weekdays = i18n.t('attendance.calendar.weekdaysShort', {
+      returnObjects: true,
+    }) as unknown as string[]
+    expect(screen.getAllByText(weekdays[0]).length).toBeGreaterThan(0)
+  })
+
+  it('navega para meses passados sem permitir um mês futuro', async () => {
+    await i18nReady
+    await renderAttendance()
+
+    await fireEvent.press(screen.getByTestId('calendar-previous-month'))
+
+    await waitFor(() => {
+      expect(attendanceHooks.useAttendanceMonth).toHaveBeenLastCalledWith(addLocalMonths(monthKey, -1))
+    })
+  })
+
+  it('marca e remove uma presença pelo toque da célula', async () => {
+    let resolveConfirm: (() => void) | undefined
+    let resolveRemove: (() => void) | undefined
+    mockConfirmAsync.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveConfirm = resolve
+      }),
+    )
+    mockRemoveAsync.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveRemove = resolve
+      }),
     )
 
-    fireEvent.press(screen.getByTestId('attendance-retry'))
+    await i18nReady
+    await renderAttendance()
 
-    expect(refetch).toHaveBeenCalledTimes(1)
-    expect(screen.getByText(i18n.t('attendance.errors.load'))).toBeOnTheScreen()
+    await fireEvent.press(screen.getByTestId(`calendar-day-${todayKey}`))
+    await fireEvent.press(screen.getByTestId(`calendar-day-${markedDateKey}`))
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`calendar-day-${todayKey}`).props.accessibilityState.disabled).toBe(true)
+    })
+    await waitFor(() => {
+      expect(mockConfirmAsync).toHaveBeenCalledWith(todayKey)
+      expect(mockRemoveAsync).toHaveBeenCalledWith(markedDateKey)
+    })
+
+    resolveConfirm?.()
+    resolveRemove?.()
+    await waitFor(() => {
+      expect(screen.getByTestId(`calendar-day-${todayKey}`).props.accessibilityState.disabled).toBe(false)
+    })
+    await waitFor(() => {
+      expect(screen.getByTestId(`calendar-day-${markedDateKey}`).props.accessibilityState.disabled).toBe(false)
+    })
+  })
+
+  it('desabilita somente a célula em mutation e mantém dias futuros inativos', async () => {
+    let resolveConfirm: (() => void) | undefined
+    mockConfirmAsync.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveConfirm = resolve
+      }),
+    )
+
+    await i18nReady
+    await renderAttendance()
+    await fireEvent.press(screen.getByTestId(`calendar-day-${todayKey}`))
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`calendar-day-${todayKey}`).props.accessibilityState.disabled).toBe(true)
+    })
+    expect(screen.getByTestId(`calendar-day-${markedDateKey}`).props.accessibilityState.disabled).toBe(false)
+    expect(screen.getByTestId(`calendar-day-${futureDateKey}`).props.accessibilityState.disabled).toBe(true)
+
+    resolveConfirm?.()
+    await waitFor(() => {
+      expect(screen.getByTestId(`calendar-day-${todayKey}`).props.accessibilityState.disabled).toBe(false)
+    })
+  })
+
+  it('expõe labels acessíveis com data, estado e ação', async () => {
+    await i18nReady
+    await renderAttendance()
+
+    expect(screen.getByTestId(`calendar-day-${markedDateKey}`).props.accessibilityLabel).toMatch(
+      /presença marcada.*remover presença/i,
+    )
+    expect(screen.getByTestId(`calendar-day-${todayKey}`).props.accessibilityLabel).toMatch(
+      /sem presença registrada.*marcar presença/i,
+    )
+    expect(screen.getByTestId(`calendar-day-${futureDateKey}`).props.accessibilityLabel).toMatch(
+      /dia futuro.*indisponível/i,
+    )
   })
 })

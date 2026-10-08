@@ -10,14 +10,12 @@ export interface AttendanceDateRange {
   to: string
 }
 
-export interface AttendanceDay {
-  dateKey: string
-  record: AttendanceRecord | null
+export interface AttendanceSummary {
+  currentStreak: number
+  currentMonthCount: number
 }
 
-export interface AttendanceSummary {
-  today: AttendanceRecord | null
-  currentStreak: number
-  currentWeekCount: number
-  recentDays: AttendanceDay[]
+export interface AttendanceMonth {
+  monthKey: string
+  records: AttendanceRecord[]
 }

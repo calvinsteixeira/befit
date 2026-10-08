@@ -61,7 +61,7 @@ describe('supabaseAttendanceRepository', () => {
     query.maybeSingle.mockResolvedValue({ data: row, error: null })
 
     await expect(
-      supabaseAttendanceRepository.confirmToday('user-1', '2026-10-07'),
+      supabaseAttendanceRepository.confirm('user-1', '2026-10-07'),
     ).resolves.toEqual({
       id: row.id,
       userId: row.user_id,
@@ -75,7 +75,7 @@ describe('supabaseAttendanceRepository', () => {
     query.eq.mockReturnValueOnce(query).mockResolvedValueOnce({ error: null })
 
     await expect(
-      supabaseAttendanceRepository.removeToday('user-1', '2026-10-07'),
+      supabaseAttendanceRepository.remove('user-1', '2026-10-07'),
     ).resolves.toBeUndefined()
     expect(query.delete).toHaveBeenCalledTimes(1)
   })

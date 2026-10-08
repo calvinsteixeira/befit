@@ -1,9 +1,8 @@
 import type { AttendanceRecord } from '../types/attendance'
 
 import {
-  buildRecentAttendanceDays,
   calculateCurrentStreak,
-  countCurrentWeekPresences,
+  countCurrentMonthPresences,
 } from './attendance-summary'
 
 const record = (attendedOn: string): AttendanceRecord => ({
@@ -32,20 +31,12 @@ describe('attendance-summary', () => {
     ).toBe(2)
   })
 
-  it('conta apenas as presenças da semana atual', () => {
+  it('conta apenas as presenças do mês atual', () => {
     expect(
-      countCurrentWeekPresences(
+      countCurrentMonthPresences(
         [record('2026-09-30'), record('2026-10-05'), record('2026-10-07')],
         '2026-10-07',
       ),
     ).toBe(2)
-  })
-
-  it('preenche os últimos sete dias sem transformar ausência em falta', () => {
-    const days = buildRecentAttendanceDays([record('2026-10-07')], '2026-10-07')
-
-    expect(days).toHaveLength(7)
-    expect(days.at(-1)).toEqual({ dateKey: '2026-10-07', record: record('2026-10-07') })
-    expect(days.at(0)).toEqual({ dateKey: '2026-10-01', record: null })
   })
 })

@@ -8,44 +8,27 @@ import { HomeScreen } from './home-screen'
 jest.mock('expo-localization', () => ({
   getLocales: () => [{ languageTag: 'pt-BR' }],
 }))
-jest.mock('lucide-react-native', () => ({
-  CheckCircle2: () => null,
-  CircleDashed: () => null,
-}))
 jest.mock('@/features/attendance/hooks/use-attendance', () => ({
-  useAttendanceSummary: jest.fn(),
-}))
-jest.mock('expo-router', () => ({
-  router: { push: jest.fn() },
+  useAttendanceInsights: jest.fn(),
 }))
 
-const mockUseAttendanceSummary = jest.requireMock(
+const mockUseAttendanceInsights = jest.requireMock(
   '@/features/attendance/hooks/use-attendance',
-).useAttendanceSummary as jest.Mock
+).useAttendanceInsights as jest.Mock
 
 describe('HomeScreen', () => {
   beforeEach(() => {
-    mockUseAttendanceSummary.mockReturnValue({
+    mockUseAttendanceInsights.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
-        today: null,
-        currentStreak: 2,
-        currentWeekCount: 3,
-        recentDays: [
-          { dateKey: '2026-10-01', record: null },
-          { dateKey: '2026-10-02', record: null },
-          { dateKey: '2026-10-03', record: null },
-          { dateKey: '2026-10-04', record: null },
-          { dateKey: '2026-10-05', record: null },
-          { dateKey: '2026-10-06', record: null },
-          { dateKey: '2026-10-07', record: null },
-        ],
+        currentStreak: 3,
+        currentMonthCount: 8,
       },
     })
   })
 
-  it('exibe somente o estado real de presença e os resumos derivados', async () => {
+  it('exibe apenas os insights reais de sequência e mês', async () => {
     await i18nReady
     await render(
       <I18nextProvider i18n={i18n}>
@@ -54,26 +37,20 @@ describe('HomeScreen', () => {
     )
 
     expect(screen.getByTestId('home-screen')).toBeOnTheScreen()
-    expect(screen.getByText(i18n.t('home.today.pending'))).toBeOnTheScreen()
-    expect(screen.getByText(i18n.t('home.stats.days', { count: 2 }))).toBeOnTheScreen()
-    expect(screen.getAllByText(i18n.t('home.recent.noRecord')).length).toBeGreaterThan(0)
-    expect(screen.queryByText(/registrar treino/i)).not.toBeOnTheScreen()
+    expect(screen.getByText(i18n.t('home.insights.streakValue', { count: 3 }))).toBeOnTheScreen()
+    expect(screen.getByText(i18n.t('home.insights.monthValue', { count: 8 }))).toBeOnTheScreen()
+    expect(screen.queryByText(/últimos sete dias/i)).not.toBeOnTheScreen()
+    expect(screen.queryByText(/hoje/i)).not.toBeOnTheScreen()
+    expect(screen.queryByText(/nesta semana/i)).not.toBeOnTheScreen()
   })
 
-  it('mostra a presença confirmada sem oferecer ação de registro', async () => {
-    mockUseAttendanceSummary.mockReturnValue({
+  it('mostra um estado curto quando ainda não há sequência nem presenças no mês', async () => {
+    mockUseAttendanceInsights.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
-        today: {
-          id: 'attendance-1',
-          userId: 'user-1',
-          attendedOn: '2026-10-07',
-          createdAt: '2026-10-07T12:00:00.000Z',
-        },
-        currentStreak: 1,
-        currentWeekCount: 1,
-        recentDays: [],
+        currentStreak: 0,
+        currentMonthCount: 0,
       },
     })
 
@@ -84,7 +61,7 @@ describe('HomeScreen', () => {
       </I18nextProvider>,
     )
 
-    expect(screen.getByText(i18n.t('home.today.confirmed'))).toBeOnTheScreen()
-    expect(screen.queryByTestId('home-view-attendance')).not.toBeOnTheScreen()
+    expect(screen.getByText(i18n.t('home.insights.streakEmpty'))).toBeOnTheScreen()
+    expect(screen.getByText(i18n.t('home.insights.monthEmpty'))).toBeOnTheScreen()
   })
 })
